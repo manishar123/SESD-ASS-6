@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Foodie — Simple Food Delivery</title>
+  <style>
+    /* Simple modern reset */
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#f7f7fb;--card:#ffffff;--accent:#ff6b6b;--muted:#7a7a8a;--glass:rgba(255,255,255,0.6);
+      --radius:14px; --shadow: 0 6px 18px rgba(19,19,30,0.08);
+      --maxw:1100px;
+    }
+    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg,var(--bg),#fff); color:#111; padding:32px; display:flex; justify-content:center}
+    .app{width:100%;max-width:var(--maxw)}
+
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ff8e53);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--shadow)}
+    h1{font-size:18px}
+    .search{flex:1;margin:0 18px}
+    .search input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #eee;background:var(--card);box-shadow:var(--shadow)}
+    .cart{background:var(--card);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);display:flex;gap:10px;align-items:center}
+
+    .hero{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-bottom:22px}
+    .hero-card{background:var(--card);padding:20px;border-radius:20px;box-shadow:var(--shadow)}
+    .hero h2{font-size:22px;margin-bottom:6px}
+    .hero p{color:var(--muted);margin-bottom:12px}
+    .filters{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:8px 12px;border-radius:999px;background:var(--glass);border:1px solid rgba(0,0,0,0.04);font-size:14px;color:var(--muted)}
+
+    /* Menu grid */
+    .menu{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:var(--card);border-radius:16px;padding:12px;box-shadow:var(--shadow);display:flex;gap:12px;align-items:center}
+    .thumb{width:84px;height:84px;border-radius:12px;flex-shrink:0;background-size:cover;background-position:center}
+    .info{flex:1}
+    .title{font-weight:600;margin-bottom:6px}
+    .desc{font-size:13px;color:var(--muted);margin-bottom:8px}
+    .meta{display:flex;justify-content:space-between;align-items:center}
+    .price{font-weight:700}
+    .btn{padding:8px 12px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#ff8e53);color:white;border:none;cursor:pointer}
+
+    footer{margin-top:22px;text-align:center;color:var(--muted);font-size:14px}
+
+    /* Responsive */
+    @media (max-width:980px){
+      .hero{grid-template-columns:1fr}
+      .menu{grid-template-columns:repeat(2,1fr)}
+      .search{display:none}
+    }
+    @media (max-width:560px){
+      .menu{grid-template-columns:1fr}
+      header{flex-direction:column;gap:12px;align-items:flex-start}
+      .hero{gap:12px}
+    }
+
+    /* small badge */
+    .badge{background:#fff;color:var(--accent);border:1px solid rgba(255,107,107,0.12);padding:6px 8px;border-radius:10px;font-weight:600}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo">F</div>
+        <div>
+          <h1>Foodie</h1>
+          <div style="font-size:12px;color:var(--muted)">Delivery in 30–40 min • Free delivery over ₹299</div>
+        </div>
+      </div>
+      <div class="search">
+        <input placeholder="Search dishes or restaurants..." />
+      </div>
+      <div class="cart">
+        <div style="font-size:14px">🧾 3 items</div>
+        <div class="badge">₹ 499</div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-card">
+        <h2>Popular near you</h2>
+        <p>Hot picks selected by Foodie — crispy, spicy, and delish 👇</p>
+        <div class="filters">
+          <div class="chip">Veg</div>
+          <div class="chip">Non-Veg</div>
+          <div class="chip">Biryani</div>
+          <div class="chip">Pizzas</div>
+          <div class="chip">Desserts</div>
+        </div>
+      </div>
+
+      <aside class="hero-card">
+        <h3 style="margin-bottom:8px">Your location</h3>
+        <div style="font-weight:600">SR University, Near Gachibowli</div>
+        <p style="color:var(--muted);font-size:13px;margin-top:8px">Free delivery for orders above ₹299</p>
+      </aside>
+    </section>
+
+    <main>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="font-size:16px">Menu</h3>
+        <div style="color:var(--muted);font-size:14px">Showing 6 results</div>
+      </div>
+
+      <div class="menu">
+        <!-- Card 1 -->
+        <article class="card">
+          <div class="thumb" style="background-image:url('https://feeds.abplive.com/onecms/images/uploaded-images/2023/10/11/fa6be68d80b1f9676ece11173a8b6ded1697004727372557_original.jpg')"></div>
+          <div class="info">
+            <div class="title">Hyderabadi Biryani</div>
+            <div class="desc">Fragrant basmati with slow-cooked spices & chicken.</div>
+            <div class="meta">
+              <div class="price">₹179</div>
+              <button class="btn">Add</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="card">
+          <div class="thumb" style="background-image:url('https://cdn.britannica.com/08/177308-050-94D9D6BE/Food-Pizza-Basil-Tomato.jpg')"></div>
+          <div class="info">
+            <div class="title">Margherita Pizza</div>
+            <div class="desc">Classic cheese & basil — simple & satisfying.</div>
+            <div class="meta">
+              <div class="price">₹349</div>
+              <button class="btn">Add</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="card">
+          <div class="thumb" style="background-image:url('https://i.pinimg.com/originals/2c/23/a9/2c23a9a24b7b031f5ad01c900a9993d7.jpg')"></div>
+          <div class="info">
+            <div class="title">Paneer Butter Masala</div>
+            <div class="desc">Creamy tomato gravy with soft paneer cubes.</div>
+            <div class="meta">
+              <div class="price">₹159</div>
+              <button class="btn">Add</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 4 -->
+        <article class="card">
+          <div class="thumb" style="background-image:url('https://haveliindiannepali.com/wp-content/uploads/2022/11/veg-thali.png')"></div>
+          <div class="info">
+            <div class="title">Veg Thali</div>
+            <div class="desc">Daily special with rice, dal, sabzi & roti.</div>
+            <div class="meta">
+              <div class="price">₹129</div>
+              <button class="btn">Add</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 5 -->
+        <article class="card">
+          <div class="thumb" style="background-image:url('http://greenlining.org/wp-content/uploads/2014/06/Brownies2.jpg')"></div>
+          <div class="info">
+            <div class="title">Chocolate Brownie</div>
+            <div class="desc">Warm, fudgy brownie served with ice-cream.</div>
+            <div class="meta">
+              <div class="price">₹79</div>
+              <button class="btn">Add</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 6 -->
+        <article class="card">
+          <div class="thumb" style="background-image:url('https://culinarydelightsandbeyond.com/wp-content/uploads/2023/03/dosa-5oF7d_hPJG4-scaled.jpg')"></div>
+          <div class="info">
+            <div class="title">Masala Dosa</div>
+            <div class="desc">Crispy dosa with spiced potato filling & chutney.</div>
+            <div class="meta">
+              <div class="price">₹99</div>
+              <button class="btn">Add</button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </main>
+
+    <footer>Designed with ❤️ • This is a static HTML/CSS demo (no payments or backend)</footer>
+  </div>
+</body>
+</html>
