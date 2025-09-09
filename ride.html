@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RideX — Demo Ride Hailing App</title>
+<style>
+  :root{
+    --bg:#f3f6fb; --card:#fff; --accent:#ff6b6b; --muted:#667085; --glass:rgba(255,255,255,0.6);
+    --shadow: 0 10px 30px rgba(18,38,63,0.07);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;color:#0f172a;background:linear-gradient(180deg,#eef2f7,#f9fbff);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px}
+  .app{width:100%;max-width:1100px}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ff8e53);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;box-shadow:var(--shadow)}
+  h1{font-size:20px}
+  .layout{display:grid;grid-template-columns:420px 1fr;gap:20px}
+  /* LEFT PANEL (controls) */
+  .panel{background:var(--card);padding:18px;border-radius:16px;box-shadow:var(--shadow)}
+  .field{display:flex;flex-direction:column;margin-bottom:12px}
+  label{font-size:13px;color:var(--muted);margin-bottom:6px}
+  input[type="text"], select{padding:12px;border-radius:10px;border:1px solid #e6eef7;font-size:14px}
+  .row{display:flex;gap:8px}
+  .ride-types{display:flex;gap:8px;margin:10px 0 14px}
+  .type{padding:10px 12px;border-radius:10px;border:1px solid #eef2f7;background:linear-gradient(180deg,#fff,#fbfdff);cursor:pointer;flex:1;text-align:center}
+  .type.active{border-color:var(--accent);box-shadow:0 6px 18px rgba(255,107,107,0.12)}
+  .estimate{font-weight:700;font-size:18px;color:#0b74d1;margin-bottom:10px}
+  .btn{display:inline-block;padding:10px 16px;background:linear-gradient(90deg,var(--accent),#ff8e53);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(255,107,107,0.12)}
+  .small{font-size:13px;color:var(--muted)}
+  .status{margin-top:12px;padding:12px;border-radius:10px;background:#fbfdff;border:1px dashed #e6eef7}
+
+  /* RIGHT PANEL (map & tracking) */
+  .map-wrap{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+  .map{
+    height:620px;
+    background:linear-gradient(180deg,#d9eef9,#bfe7ff 40%, #8ccfff 80%);
+    display:flex;align-items:center;justify-content:center;position:relative;
+    /* subtle grid to mimic map texture */
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size:40px 40px;
+  }
+
+  /* markers & route */
+  .marker{position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--accent);transform:translate(-50%,-50%);box-shadow:0 6px 18px rgba(19,19,30,0.12)}
+  .pickup{left:25%;top:40%}
+  .drop{left:75%;top:55%;border-color:#0b74d1}
+  .driver{width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid #28a745;position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;font-size:14px}
+  .route{position:absolute;left:25%;top:40%;width:50%;height:2px;background:linear-gradient(90deg,var(--accent),#0b74d1);transform-origin:left center;opacity:0.6}
+
+  /* driver card */
+  .driver-card{position:absolute;right:18px;bottom:18px;background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow);width:260px}
+  .driver-card .meta{display:flex;gap:12px;align-items:center}
+  .avatar{width:56px;height:56px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .progress{height:8px;background:#eef2f7;border-radius:8px;margin-top:8px;overflow:hidden}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#34d399,#06b6d4)}
+
+  footer{margin-top:14px;text-align:center;color:var(--muted);font-size:13px}
+
+  /* responsive */
+  @media (max-width:980px){
+    .layout{grid-template-columns:1fr;gap:12px}
+    .map{height:520px}
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="brand" style="display:flex;gap:12px;align-items:center">
+        <div class="logo">RX</div>
+        <div>
+          <h1 style="margin:0;font-size:18px">RideX</h1>
+          <div class="small">Quick rides, safe drivers</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="small">Welcome, Rider 👋</div>
+        <button class="btn ghost" id="helpBtn">Help</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Controls -->
+      <aside class="panel">
+        <div class="field">
+          <label>Pickup</label>
+          <input id="pickup" type="text" placeholder="Enter pickup location (e.g. MG Road)" value="SR University" />
+        </div>
+
+        <div class="field">
+          <label>Drop-off</label>
+          <input id="dropoff" type="text" placeholder="Enter drop-off location (e.g. Gachibowli)" value="Hitech City" />
+        </div>
+
+        <div class="field">
+          <label>Choose ride</label>
+          <div class="ride-types" id="types">
+            <div class="type active" data-id="economy" data-mult="1">Economy<br><small class="small">₹ per km low</small></div>
+            <div class="type" data-id="comfort" data-mult="1.5">Comfort<br><small class="small">more space</small></div>
+            <div class="type" data-id="xl" data-mult="2">XL<br><small class="small">bigger car</small></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Estimated distance</label>
+          <div id="distance" class="small">-- km</div>
+        </div>
+
+        <div class="field">
+          <label>Fare estimate</label>
+          <div id="estimate" class="estimate">₹ --</div>
+        </div>
+
+        <div style="display:flex;gap:8px">
+          <button id="estimateBtn" class="btn">Estimate Fare</button>
+          <button id="requestBtn" class="btn" style="background:#0b74d1">Request Ride</button>
+        </div>
+
+        <div class="status" id="statusBox" style="display:none">
+          <div id="statusText">Idle</div>
+        </div>
+
+        <footer>Demo app — no payments, simulated drivers.</footer>
+      </aside>
+
+      <!-- Map & tracking -->
+      <main class="map-wrap">
+        <div class="map" id="map">
+          <!-- route line and markers -->
+          <div class="route" id="route"></div>
+          <div class="marker pickup" id="pickupMark" title="Pickup"></div>
+          <div class="marker drop" id="dropMark" title="Drop-off"></div>
+          <div class="driver" id="driverMark" style="left:25%;top:40%;display:none">🚗</div>
+          <!-- driver card -->
+          <div class="driver-card" id="driverCard" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="display:flex;gap:12px;align-items:center">
+                <div class="avatar">KS</div>
+                <div>
+                  <div style="font-weight:700">Kumar Singh</div>
+                  <div class="small">Toyota Etios • KA-01-AB-1234</div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div class="small">ETA <strong id="eta">--</strong></div>
+                <div class="small">Rating ★ 4.8</div>
+              </div>
+            </div>
+            <div class="progress"><i id="progressBar"></i></div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn" id="contactBtn" style="flex:1">Contact</button>
+              <button class="btn ghost" id="cancelBtn" style="flex:1">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+<script>
+/*
+  RideX Demo logic (pure front-end simulation)
+  - Estimate distance & fare based on pseudo-random distance between pickup/drop.
+  - Simulate driver matching & animate driver moving along the route.
+*/
+
+// utilities
+const rand = (min,max)=> Math.round(min + Math.random()*(max-min));
+const el = id => document.getElementById(id);
+
+// initial UI elements
+const typesEl = document.getElementById('types');
+const estimateEl = el('estimate');
+const distanceEl = el('distance');
+const statusBox = el('statusBox');
+const statusText = el('statusText');
+const driverMark = el('driverMark');
+const routeEl = el('route');
+const pickupMark = el('pickupMark');
+const dropMark = el('dropMark');
+const driverCard = el('driverCard');
+const progressBar = el('progressBar');
+const etaEl = el('eta');
+
+// state
+let selectedType = 'economy';
+let multiplier = 1;
+let distanceKm = null;
+let matchingTimer = null;
+let movingTimer = null;
+
+// choose ride type
+typesEl.addEventListener('click', (e)=>{
+  const t = e.target.closest('.type');
+  if(!t) return;
+  typesEl.querySelectorAll('.type').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  selectedType = t.dataset.id;
+  multiplier = parseFloat(t.dataset.mult) || 1;
+  estimateFare();
+});
+
+// pseudo distance calculation: hash lengths of strings + small randomness
+function estimateDistance(){
+  const p = el('pickup').value.trim();
+  const d = el('dropoff').value.trim();
+  const base = Math.abs(p.length - d.length) + p.length%7 + d.length%5;
+  distanceKm = Math.max(1, Math.round((base*1.2) + Math.random()*6)); // km
+  distanceEl.textContent = distanceKm + ' km';
+  // set route width / rotation to visually link pickup/drop
+  routeEl.style.left = '25%';
+  routeEl.style.top = '40%';
+  routeEl.style.width = '50%';
+  routeEl.style.transform = 'translateY(-1px)'; // keep straight
+}
+
+// fare calc
+function estimateFare(){
+  estimateDistance();
+  const baseFare = 40; // base
+  const perKm = 12; // per km
+  const fare = Math.max(30, Math.round((baseFare + perKm * distanceKm) * multiplier));
+  estimateEl.textContent = '₹ ' + fare;
+  return fare;
+}
+
+// estimate button
+el('estimateBtn').addEventListener('click', ()=> {
+  estimateFare();
+  showStatus('Fare estimated — ₹' + estimateEl.textContent.split('₹')[1]);
+});
+
+// request ride
+el('requestBtn').addEventListener('click', ()=> {
+  // require pickup/drop
+  const p = el('pickup').value.trim();
+  const d = el('dropoff').value.trim();
+  if(!p || !d){ alert('Please enter both pickup and drop-off'); return; }
+  const fare = estimateFare();
+  startMatching(fare);
+});
+
+// show status helper
+function showStatus(msg){
+  statusBox.style.display = 'block';
+  statusText.textContent = msg;
+}
+
+// matching simulation
+function startMatching(fare){
+  showStatus('Searching for drivers nearby...');
+  // small animation on route
+  routeEl.style.opacity = 1;
+  // simulate 1-3 second search
+  const wait = rand(1000,2500);
+  clearTimeout(matchingTimer);
+  matchingTimer = setTimeout(()=>{
+    // found driver
+    const driver = {
+      name: ['Kumar','Anita','Ravi','Priya'][rand(0,3)],
+      car: ['Etios','Swift','Baleno','Magnite'][rand(0,3)],
+      plate: 'KA-' + rand(10,99) + '-' + String.fromCharCode(65+rand(0,25)) + String.fromCharCode(65+rand(0,25)) + '-' + rand(1000,9999),
+      eta: rand(3,9) // minutes
+    };
+    onDriverFound(driver);
+  }, wait);
+}
+
+function onDriverFound(driver){
+  showStatus('Driver found — ' + driver.name + ' (' + driver.car + ') • ETA ' + driver.eta + ' min');
+  // show driver card
+  driverCard.style.display = 'block';
+  driverCard.querySelector('.avatar').textContent = driver.name.split('')[0] + driver.name.split('')[1] || 'DR';
+  driverCard.querySelector('.avatar').style.background = '#fff';
+  driverCard.querySelector('div[style*="font-weight:700"]').textContent = driver.name + ' • ' + driver.car;
+  driverCard.querySelector('.small')?.parentNode; // noop to ensure DOM present
+  etaEl.textContent = driver.eta + ' min';
+  // animate progress bar to show driver approaching pickup
+  progressBar.style.width = '0%';
+  let prog = 0;
+  const progInterval = setInterval(()=> {
+    prog += 10;
+    progressBar.style.width = prog + '%';
+    if(prog >= 100) clearInterval(progInterval);
+  }, Math.max(200, driver.eta*100)); // scale
+
+  // place driver marker at pickup start
+  driverMark.style.display = 'flex';
+  // start moving driver to drop-off across map (simulate)
+  animateDriver(driver.eta);
+}
+
+// animate driver marker along a simple path between pickup and drop positions
+function animateDriver(etaMinutes){
+  // compute steps and duration
+  const steps = 120;
+  const duration = Math.max(4000, etaMinutes * 800); // ms
+  let step = 0;
+  // initial start = pickup coords (25%,40%) to drop (75%,55%)
+  const start = {x:25, y:40};
+  const end = {x:75, y:55};
+  // show route line between start and end
+  routeEl.style.left = start.x + '%';
+  routeEl.style.top = start.y + '%';
+  routeEl.style.width = (end.x - start.x) + '%';
+  routeEl.style.transform = 'translateY(0px)'; // keep horizontal line
+  // set markers positions
+  pickupMark.style.left = start.x + '%';
+  pickupMark.style.top = start.y + '%';
+  dropMark.style.left = end.x + '%';
+  dropMark.style.top = end.y + '%';
+
+  clearInterval(movingTimer);
+  movingTimer = setInterval(()=>{
+    step++;
+    const t = step / steps;
+    // simple ease-in-out cubic
+    const ease = t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+    const curX = start.x + (end.x - start.x) * ease;
+    const curY = start.y + (end.y - start.y) * ease;
+    driverMark.style.left = curX + '%';
+    driverMark.style.top = curY + '%';
+
+    // update ETA display (rough)
+    const remaining = Math.max(0, Math.round((1 - ease) * (etaMinutes)));
+    etaEl.textContent = remaining + ' min';
+
+    if(step >= steps){
+      clearInterval(movingTimer);
+      showStatus('Driver has arrived at pickup. Ride in progress...');
+      // simulate arrival and hide driver after a bit
+      setTimeout(()=> {
+        showStatus('Ride completed. Thank you for riding with RideX!');
+        driverMark.style.display = 'none';
+        driverCard.style.display = 'none';
+      }, 3000);
+    }
+  }, duration / steps);
+}
+
+// contact / cancel buttons
+el('contactBtn').addEventListener('click', ()=> alert('Calling driver... (simulated)'));
+el('cancelBtn').addEventListener('click', ()=> {
+  clearTimeout(matchingTimer); clearInterval(movingTimer);
+  driverMark.style.display = 'none'; driverCard.style.display = 'none';
+  showStatus('Ride canceled.');
+});
+
+// small helpers: estimate automatically on load
+estimateFare();
+showStatus('Ready — enter pickup & drop and click "Estimate Fare" or "Request Ride".');
+
+</script>
+</body>
+</html>
