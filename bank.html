@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banking App Prototype</title>
+  <style>
+    /* General Styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Header */
+    header {
+      background-color: #4b6cb7;
+      background-image: linear-gradient(to right, #182848, #4b6cb7);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Login Form */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      margin: 40px auto;
+    }
+
+    .login-form input {
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .login-form button {
+      padding: 12px;
+      background-color: #4b6cb7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .login-form button:hover {
+      background-color: #182848;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      background-color: #4b6cb7;
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 48%;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    /* Transaction Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+
+    table th {
+      background-color: #4b6cb7;
+      color: white;
+    }
+
+    @media(max-width: 700px) {
+      .card {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Banking App </h1>
+  </header>
+
+  <!-- Login Page -->
+  <div class="container">
+    <h2>Login</h2>
+    <form class="login-form">
+      <input type="text" placeholder="Username" required>
+      <input type="password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div class="container">
+    <h2>Dashboard</h2>
+    <div class="dashboard">
+      <div class="card">
+        <h2>Account Balance</h2>
+        <p>$12,500.00</p>
+      </div>
+      <div class="card">
+        <h2>Recent Transactions</h2>
+        <table>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Amount</th>
+          </tr>
+          <tr>
+            <td>09-09-2025</td>
+            <td>Grocery Store</td>
+            <td>-$120</td>
+          </tr>
+          <tr>
+            <td>08-09-2025</td>
+            <td>Salary</td>
+            <td>$2500</td>
+          </tr>
+          <tr>
+            <td>07-09-2025</td>
+            <td>Electricity Bill</td>
+            <td>-$80</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
